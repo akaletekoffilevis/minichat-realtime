@@ -1,43 +1,40 @@
-# Déploiement Koyeb
+# Déploiement
 
-## 1. Compte Koyeb
+## Backend → Hugging Face Spaces (gratuit, toujours allumé)
 
-1. Va sur https://app.koyeb.com
-2. Inscris-toi avec ton compte **GitHub** (un clic, pas de carte)
-3. Confirme ton email
+1. Va sur https://huggingface.co → Crée un compte
+2. Clique sur ton avatar → **New Space**
+3. Configure :
+   - **Space Name** : `minichat-server`
+   - **License** : `MIT`
+   - **Space SDK** : **Docker**
+   - **Docker Template** : **Blank**
+4. Clique **Create Space**
+5. Dans l'onglet **Settings** → **Repository** → connecte GitHub
+   - Ou upload les fichiers manuellement :
+     - `Dockerfile` (à la racine)
+     - `server/` (dossier complet)
+6. Le build démarre automatiquement
+7. Tu obtiens : `https://tonpseudo-minichat-server.hf.space`
 
-## 2. Déployer le serveur
+## Frontend → Vercel
 
-1. Clique **"Create App"**
-2. **GitHub** → connecte ton compte → sélectionne `akaletekoffilevis/minichat-realtime`
-3. **Builder** : sélectionne **"Dockerfile"**
-4. **Dockerfile path** : `server/Dockerfile`
-5. **Port** : `8080`
-6. **App name** : `minichat` (ou autre)
-7. Clique **"Deploy"**
+Va sur https://vercel.com → **Add New → Project** :
 
-⏳ Attends 2 minutes → tu obtiens `https://minichat.koyeb.app`
+- Repo : `akaletekoffilevis/minichat-realtime`
+- **Root Directory** : `client`
+- **Build Command** : `npm run build`
+- **Output Directory** : `dist`
 
-## 3. Déployer le frontend (Vercel)
-
-1. Va sur https://vercel.com
-2. **Add New → Project**
-3. Importe `akaletekoffilevis/minichat-realtime`
-4. **Root Directory** : `client`
-5. **Framework Preset** : `Vite`
-6. **Build Command** : `npm run build`
-7. **Output Directory** : `dist`
-
-Ajoute cette variable d'environnement :
+Ajoute dans **Environment Variables** :
 
 | Variable | Valeur |
 |----------|--------|
-| `VITE_SERVER_URL` | `https://minichat.koyeb.app` |
+| `VITE_SERVER_URL` | `https://tonpseudo-minichat-server.hf.space` |
 
-→ **Deploy**
+## Test
 
-## 4. C'est prêt !
-
-- **Chat** : `https://minichat.vercel.app`
-- **Serveur** : `https://minichat.koyeb.app` (toujours allumé)
-- **Coût** : **0€**, sans carte bancaire
+1. Ouvre `https://discutons.vercel.app`
+2. Tape un pseudo + `#salon`
+3. Partage le lien à un ami
+4. Vous discutez en temps réel (texte, audio, stickers, fichiers)
