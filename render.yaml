@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: mini-chat-server
+    env: node
+    buildCommand: cd server && npm install
+    startCommand: cd server && node index.js
+    plan: free
