@@ -231,7 +231,7 @@ export default function App() {
       <div className="chat-header">
         <div>
           <span className="room-label">Salon</span>
-          <strong>{room}</strong>
+          <strong>#{room}</strong>
           <button className="btn-link-share" onClick={copyLink} title="Copier le lien d'invitation">
             {copied ? "✅ Lien copié !" : "🔗 Partager"}
           </button>
