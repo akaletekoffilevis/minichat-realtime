@@ -1,40 +1,43 @@
-# Déploiement Vercel (100% gratuit, 0 carte)
+# Déploiement Koyeb
 
-Le backend Socket.io tourne en tant que **Serverless Function** sur Vercel (support WebSocket activé).
+## 1. Compte Koyeb
 
-## 1. Config Vercel (déjà fait)
+1. Va sur https://app.koyeb.com
+2. Inscris-toi avec ton compte **GitHub** (un clic, pas de carte)
+3. Confirme ton email
 
-Le repo est prêt :
-- `api/socket.js` → fonction Socket.io
-- `vercel.json` → build + configuration fonction
-- `client/` → frontend React
+## 2. Déployer le serveur
 
-## 2. Variables d'environnement
+1. Clique **"Create App"**
+2. **GitHub** → connecte ton compte → sélectionne `akaletekoffilevis/minichat-realtime`
+3. **Builder** : sélectionne **"Dockerfile"**
+4. **Dockerfile path** : `server/Dockerfile`
+5. **Port** : `8080`
+6. **App name** : `minichat` (ou autre)
+7. Clique **"Deploy"**
 
-Dans les **Settings** du projet Vercel → **Environment Variables** :
+⏳ Attends 2 minutes → tu obtiens `https://minichat.koyeb.app`
+
+## 3. Déployer le frontend (Vercel)
+
+1. Va sur https://vercel.com
+2. **Add New → Project**
+3. Importe `akaletekoffilevis/minichat-realtime`
+4. **Root Directory** : `client`
+5. **Framework Preset** : `Vite`
+6. **Build Command** : `npm run build`
+7. **Output Directory** : `dist`
+
+Ajoute cette variable d'environnement :
 
 | Variable | Valeur |
 |----------|--------|
-| `VITE_SOCKET_PATH` | `/api/socket` |
+| `VITE_SERVER_URL` | `https://minichat.koyeb.app` |
 
-⚠️ **Ne pas** mettre `VITE_SERVER_URL` (elle doit être vide pour que le client se connecte au même domaine).
+→ **Deploy**
 
-## 3. Root Directory
+## 4. C'est prêt !
 
-Dans **Project Settings → General** :
-- **Root Directory** → laisse **vide** (racine du repo)
-- **Build & Development Settings** → laisser les valeurs du `vercel.json`
-
-## 4. Redéployer
-
-Va dans **Deployments** → clique sur **"Redeploy"** du dernier déploiement.
-
-## 5. Tester
-
-1. Ouvre `https://discutons.vercel.app` dans 2 onglets
-2. Entre le même nom de salon (`#test`)
-3. Envoie un message → il doit apparaître chez l'autre
-
----
-
-**Important** : Vercel Serverless peut avoir plusieurs instances. Parfois les utilisateurs atterrissent sur des instances différentes et ne se voient pas. Si ça arrive, un simple rechargement des deux pages les synchronise (elles tombent sur la même instance).
+- **Chat** : `https://minichat.vercel.app`
+- **Serveur** : `https://minichat.koyeb.app` (toujours allumé)
+- **Coût** : **0€**, sans carte bancaire
