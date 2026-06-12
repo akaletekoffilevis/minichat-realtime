@@ -70,7 +70,7 @@ export default function App() {
 
   const joinRoom = () => {
     if (!username.trim()) return;
-    const roomName = room.trim() || genId();
+    const roomName = room.trim().replace(/^#+/, "") || genId();
     setConnecting(true);
     setError("");
 
@@ -207,7 +207,7 @@ export default function App() {
             onKeyDown={(e) => e.key === "Enter" && joinRoom()}
           />
           <input
-            placeholder="Nom du salon (laisser vide = aléatoire)"
+            placeholder="#monsalon (laisser vide = aléatoire)"
             value={room}
             onChange={(e) => setRoom(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && joinRoom()}
@@ -218,7 +218,7 @@ export default function App() {
           </button>
           {!room.trim() && (
             <p className="join-hint">
-              Laissez le salon vide pour en créer un automatiquement
+              Laissez vide pour un salon aléatoire, ou tapez #nom
             </p>
           )}
         </div>
