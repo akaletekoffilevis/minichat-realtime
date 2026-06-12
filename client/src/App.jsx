@@ -71,6 +71,7 @@ export default function App() {
   const joinRoom = () => {
     if (!username.trim()) return;
     const roomName = room.trim().replace(/^#+/, "") || genId();
+    setRoom(roomName);
     setConnecting(true);
     setError("");
 
