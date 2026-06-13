@@ -27,6 +27,9 @@ const getRooms = () => {
     if (!roomMap[u.room]) roomMap[u.room] = 0;
     roomMap[u.room]++;
   });
+  Object.keys(messages).forEach((room) => {
+    if (!roomMap[room]) roomMap[room] = 0;
+  });
   return Object.entries(roomMap).map(([name, count]) => ({ name, users: count }));
 };
 
