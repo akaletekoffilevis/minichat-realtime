@@ -42,6 +42,8 @@ export default function App() {
   const [recording, setRecording] = useState(false);
   const [showStickers, setShowStickers] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [showRoomsPage, setShowRoomsPage] = useState(false);
+  const [newRoomName, setNewRoomName] = useState("");
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
   const mediaRecorder = useRef(null);
@@ -93,6 +95,26 @@ export default function App() {
     };
   }, []);
 
+  useEffect(() => {
+    const onMsg = (msg) => setMessages((prev) => [...prev, msg]);
+    const onJoined = ({ username: u, users: usrs }) => {
+      setUsers(usrs);
+      setMessages((prev) => [...prev, { system: true, text: `👋 ${u} a rejoint le salon` }]);
+    };
+    const onLeft = ({ username: u }) => {
+      setUsers((prev) => prev.filter((x) => x !== u));
+      setMessages((prev) => [...prev, { system: true, text: `🚪 ${u} a quitté le salon` }]);
+    };
+    socket.on("message", onMsg);
+    socket.on("user-joined", onJoined);
+    socket.on("user-left", onLeft);
+    return () => {
+      socket.off("message", onMsg);
+      socket.off("user-joined", onJoined);
+      socket.off("user-left", onLeft);
+    };
+  }, []);
+
   const joinRoom = (roomName) => {
     if (!username.trim()) return;
     const name = roomName || room.trim().replace(/^#+/, "") || genId();
@@ -100,40 +122,32 @@ export default function App() {
     setConnecting(true);
     setError("");
 
-    socket.on("connect", () => {
+    const onConnect = () => {
       socket.emit("join", { room: name, username: username.trim() });
-    });
-
-    socket.on("history", ({ messages: msgs, users: usrs }) => {
+    };
+    const onHistory = ({ messages: msgs, users: usrs }) => {
       setMessages(msgs || []);
       setUsers(usrs || []);
       setConnecting(false);
       setJoined(true);
-    });
-
-    socket.on("join-error", (msg) => {
+    };
+    const onJoinError = (msg) => {
       setError(msg);
       setConnecting(false);
-    });
-
-    socket.on("message", (msg) => {
-      setMessages((prev) => [...prev, msg]);
-    });
-
-    socket.on("user-joined", ({ username: u, users: usrs }) => {
-      setUsers(usrs);
-      setMessages((prev) => [...prev, { system: true, text: `👋 ${u} a rejoint le salon` }]);
-    });
-
-    socket.on("user-left", ({ username: u }) => {
-      setUsers((prev) => prev.filter((x) => x !== u));
-      setMessages((prev) => [...prev, { system: true, text: `🚪 ${u} a quitté le salon` }]);
-    });
-
-    socket.on("connect_error", (err) => {
+    };
+    const onConnError = (err) => {
       setError("Impossible de se connecter au serveur: " + err.message);
       setConnecting(false);
-    });
+    };
+
+    socket.off("connect", onConnect);
+    socket.off("history", onHistory);
+    socket.off("join-error", onJoinError);
+    socket.off("connect_error", onConnError);
+    socket.on("connect", onConnect);
+    socket.on("history", onHistory);
+    socket.on("join-error", onJoinError);
+    socket.on("connect_error", onConnError);
 
     if (!socket.connected) socket.connect();
     else socket.emit("join", { room: name, username: username.trim() });
@@ -397,6 +411,74 @@ export default function App() {
     );
   }
 
+  if (showRoomsPage) {
+    return (
+      <div className="rooms-page">
+        <div className="rooms-page-header">
+          <div className="rooms-page-header-inner">
+            <h2>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              Tous les salons
+            </h2>
+            <button className="btn-back" onClick={() => setShowRoomsPage(false)}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+              Retour au salon
+            </button>
+          </div>
+        </div>
+        <div className="rooms-page-body">
+          <div className="rooms-page-card">
+            <div className="create-room-section">
+              <h3>Créer un nouveau salon</h3>
+              <div className="create-room-form">
+                <input
+                  placeholder="Nom du salon (sans #)"
+                  value={newRoomName}
+                  onChange={(e) => setNewRoomName(e.target.value.replace(/[^a-zA-Z0-9_-]/g, ""))}
+                  onKeyDown={(e) => e.key === "Enter" && newRoomName.trim() && (() => { setRoom(newRoomName.trim()); setNewRoomName(""); setShowRoomsPage(false); joinRoom(newRoomName.trim()); })()}
+                />
+                <button className="btn-create" onClick={() => { if (newRoomName.trim()) { setRoom(newRoomName.trim()); setNewRoomName(""); setShowRoomsPage(false); joinRoom(newRoomName.trim()); } }} disabled={!newRoomName.trim()}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Créer
+                </button>
+              </div>
+            </div>
+          </div>
+          {availableRooms.length === 0 ? (
+            <div className="rooms-empty">
+              <p>Aucun salon pour le moment</p>
+              <span>Créez le premier salon !</span>
+            </div>
+          ) : (
+            <div className="rooms-page-list">
+              <div className="rooms-page-list-header">
+                <span className="rooms-list-col-name">Salon</span>
+                <span className="rooms-list-col-users">En ligne</span>
+                <span className="rooms-list-col-action" />
+              </div>
+              {availableRooms.map((r) => (
+                <div key={r.name} className="rooms-page-row">
+                  <div className="rooms-row-info">
+                    <span className="rooms-row-icon">#</span>
+                    <span className="rooms-row-name">{r.name}</span>
+                  </div>
+                  <span className={`rooms-row-users ${r.users === 0 ? "empty" : ""}`}>
+                    <span className="rooms-row-dot" />
+                    {r.users} en ligne
+                  </span>
+                  <button className="rooms-row-join" onClick={() => { setRoom(r.name); setShowRoomsPage(false); joinRoom(r.name); }}>
+                    Rejoindre
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="chat-screen">
       <div className="chat-header">
@@ -411,6 +493,10 @@ export default function App() {
         <div className="header-right">
           <span className="user-name">{username}</span>
           <span className="users-badge">{users.length} en ligne</span>
+          <button className="btn-rooms" onClick={() => setShowRoomsPage(true)} title="Voir tous les salons">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Salons
+          </button>
         </div>
       </div>
 

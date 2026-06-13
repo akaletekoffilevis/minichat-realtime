@@ -46,7 +46,23 @@ io.on("connection", (socket) => {
 
   socket.on("join", ({ room, username }) => {
     const name = username.trim();
-    if (usedUsernames.has(name)) {
+    const prev = users[socket.id];
+    if (prev && prev.username !== name) {
+      if (usedUsernames.has(name)) {
+        socket.emit("join-error", "Ce pseudo est déjà utilisé");
+        return;
+      }
+    }
+    if (prev) {
+      if (prev.username === name && prev.room === room) {
+        socket.emit("join-error", "Vous êtes déjà dans ce salon");
+        return;
+      }
+      socket.leave(prev.room);
+      socket.to(prev.room).emit("user-left", { username: prev.username });
+      usedUsernames.delete(prev.username);
+    }
+    if (usedUsernames.has(name) && (!prev || prev.username !== name)) {
       socket.emit("join-error", "Ce pseudo est déjà utilisé");
       return;
     }
