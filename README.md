@@ -36,7 +36,7 @@
 - **📱 Responsive** — Fonctionne sur mobile, tablette et desktop
 - **🎨 UI moderne** — Design glassmorphism, gradients animés, dark mode
 
-## 🚀 Stack
+## Stack
 
 | Couche | Technologie |
 |--------|-------------|
