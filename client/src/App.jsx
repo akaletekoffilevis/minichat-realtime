@@ -52,6 +52,18 @@ export default function App() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  const [showScrollBtn, setShowScrollBtn] = useState(false);
+  const messagesRef = useRef(null);
+  useEffect(() => {
+    const el = messagesRef.current;
+    if (!el) return;
+    const handleScroll = () => {
+      setShowScrollBtn(el.scrollHeight - el.scrollTop - el.clientHeight > 200);
+    };
+    el.addEventListener("scroll", handleScroll);
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, []);
+
   useEffect(() => {
     const handle = (e) => {
       if (stickerRef.current && !stickerRef.current.contains(e.target)) {
@@ -359,9 +371,16 @@ export default function App() {
         </div>
       </div>
 
-      {copied && <div className="toast">Lien copié dans le presse-papier !</div>}
+      {copied && <div className="toast">✓ Lien copié !</div>}
 
-      <div className="messages">
+      <div className="messages" ref={messagesRef}>
+        {messages.length === 0 && (
+          <div className="msg-empty">
+            <span className="msg-empty-icon">💬</span>
+            <p>Aucun message pour l'instant</p>
+            <span>Soyez le premier à écrire !</span>
+          </div>
+        )}
         {messages.map((msg, i) => {
           if (msg.system) {
             return (
@@ -405,6 +424,11 @@ export default function App() {
           );
         })}
         <div ref={messagesEndRef} />
+        {showScrollBtn && (
+          <button className="scroll-bottom" onClick={() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })}>
+            ↓
+          </button>
+        )}
       </div>
 
       <div className="chat-input">
