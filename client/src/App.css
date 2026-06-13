@@ -436,3 +436,146 @@ body {
 .sticker-btn:hover {
   background: #2a2a5a;
 }
+
+/* === RESPONSIVE === */
+
+@media (max-width: 600px) {
+  .join-card {
+    width: 100%;
+    max-width: 380px;
+    margin: 0 16px;
+    padding: 1.8rem 1.5rem;
+  }
+
+  .join-card h1 {
+    font-size: 1.4rem;
+  }
+
+  .chat-screen {
+    max-width: 100%;
+  }
+
+  .chat-header {
+    padding: 10px 12px;
+    font-size: 0.85rem;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .chat-header strong {
+    font-size: 0.85rem;
+  }
+
+  .header-right {
+    gap: 6px;
+  }
+
+  .user-name {
+    display: none;
+  }
+
+  .users-badge {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+  }
+
+  .btn-link-share {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    margin-left: 6px;
+  }
+
+  .messages {
+    padding: 10px 10px;
+  }
+
+  .msg {
+    max-width: 88%;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+
+  .msg-sticker {
+    font-size: 2.4rem;
+  }
+
+  .msg-file .file-preview {
+    max-height: 180px;
+  }
+
+  .chat-input {
+    padding: 8px 10px;
+    gap: 4px;
+  }
+
+  .chat-input input {
+    padding: 8px 10px;
+    font-size: 0.9rem;
+  }
+
+  .btn-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
+
+  .btn-send {
+    padding: 8px 14px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+
+  .btn-recording {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+
+  .sticker-picker {
+    grid-template-columns: repeat(5, 1fr);
+    bottom: 56px;
+    right: 8px;
+    padding: 8px;
+  }
+
+  .sticker-btn {
+    font-size: 1.2rem;
+    padding: 4px;
+  }
+
+  .toast {
+    font-size: 0.85rem;
+    padding: 8px 16px;
+    width: 90%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 400px) {
+  .join-card {
+    padding: 1.4rem 1rem;
+  }
+
+  .join-card input {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+
+  .msg {
+    max-width: 92%;
+    font-size: 0.85rem;
+  }
+
+  .chat-input input {
+    font-size: 0.85rem;
+    padding: 7px 8px;
+  }
+
+  .btn-send {
+    padding: 7px 10px;
+    font-size: 0.8rem;
+  }
+
+  .sticker-picker {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
