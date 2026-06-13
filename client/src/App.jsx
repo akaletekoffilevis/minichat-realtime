@@ -36,6 +36,7 @@ export default function App() {
   const [error, setError] = useState("");
   const [username, setUsername] = useState("");
   const [room, setRoom] = useState("");
+  const [availableRooms, setAvailableRooms] = useState([]);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [users, setUsers] = useState([]);
@@ -68,15 +69,30 @@ export default function App() {
     if (r) setRoom(r);
   }, []);
 
-  const joinRoom = () => {
+  useEffect(() => {
+    socket.on("rooms-list", (rooms) => {
+      setAvailableRooms(rooms);
+    });
+    socket.on("connect", () => {
+      socket.emit("get-rooms");
+    });
+    if (socket.connected) {
+      socket.emit("get-rooms");
+    }
+    return () => {
+      socket.off("rooms-list");
+    };
+  }, []);
+
+  const joinRoom = (roomName) => {
     if (!username.trim()) return;
-    const roomName = room.trim().replace(/^#+/, "") || genId();
-    setRoom(roomName);
+    const name = roomName || room.trim().replace(/^#+/, "") || genId();
+    setRoom(name);
     setConnecting(true);
     setError("");
 
     socket.on("connect", () => {
-      socket.emit("join", { room: roomName, username: username.trim() });
+      socket.emit("join", { room: name, username: username.trim() });
     });
 
     socket.on("history", ({ messages: msgs, users: usrs }) => {
@@ -84,6 +100,11 @@ export default function App() {
       setUsers(usrs || []);
       setConnecting(false);
       setJoined(true);
+    });
+
+    socket.on("join-error", (msg) => {
+      setError(msg);
+      setConnecting(false);
     });
 
     socket.on("message", (msg) => {
@@ -105,7 +126,8 @@ export default function App() {
       setConnecting(false);
     });
 
-    socket.connect();
+    if (!socket.connected) socket.connect();
+    else socket.emit("join", { room: name, username: username.trim() });
   };
 
   const shareLink = () => {
@@ -214,13 +236,24 @@ export default function App() {
             onKeyDown={(e) => e.key === "Enter" && joinRoom()}
           />
           {error && <div className="join-error">{error}</div>}
-          <button onClick={joinRoom} disabled={connecting || !username.trim()}>
+          <button onClick={() => joinRoom()} disabled={connecting || !username.trim()}>
             {connecting ? "Connexion..." : "Créer / Rejoindre le salon"}
           </button>
           {!room.trim() && (
             <p className="join-hint">
               Laissez vide pour un salon aléatoire, ou tapez #nom
             </p>
+          )}
+          {availableRooms.length > 0 && (
+            <div className="room-list">
+              <p className="room-list-title">Salons actifs</p>
+              {availableRooms.map((r) => (
+                <button key={r.name} className="room-item" onClick={() => joinRoom(r.name)}>
+                  <span className="room-item-name">#{r.name}</span>
+                  <span className="room-item-users">{r.users} en ligne</span>
+                </button>
+              ))}
+            </div>
           )}
         </div>
       </div>
