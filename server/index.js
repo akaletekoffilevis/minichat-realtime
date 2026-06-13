@@ -84,6 +84,18 @@ io.on("connection", (socket) => {
     socket.broadcast.to(room).emit("message", msg);
   });
 
+  socket.on("leave", ({ room }) => {
+    const user = users[socket.id];
+    if (user) {
+      socket.leave(room);
+      socket.to(room).emit("user-left", { username: user.username });
+      usedUsernames.delete(user.username);
+      delete users[socket.id];
+      broadcastRooms();
+      console.log(`${user.username} a quitté ${room}`);
+    }
+  });
+
   socket.on("disconnect", () => {
     const user = users[socket.id];
     if (user) {

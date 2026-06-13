@@ -99,6 +99,12 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    if (!joined && !socket.connected) {
+      socket.connect();
+    }
+  }, [joined]);
+
+  useEffect(() => {
     const onMsg = (msg) => setMessages((prev) => [...prev, msg]);
     const onJoined = ({ username: u, users: usrs }) => {
       setUsers(usrs);
@@ -157,7 +163,7 @@ export default function App() {
   };
 
   const leaveRoom = () => {
-    socket.disconnect();
+    socket.emit("leave", { room });
     setJoined(false);
     setMessages([]);
     setUsers([]);
@@ -167,8 +173,6 @@ export default function App() {
     setConnecting(false);
     setError("");
     setCopied(false);
-    setAvailableRooms([]);
-    setRoomsLoaded(false);
   };
 
   const shareLink = () => {
