@@ -10,6 +10,7 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: { origin: "*", methods: ["GET", "POST"] },
   transports: ["websocket", "polling"],
+  maxHttpBufferSize: 15 * 1024 * 1024,
 });
 
 const messages = {};
