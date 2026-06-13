@@ -973,6 +973,32 @@ body {
   flex-shrink: 0;
 }
 
+.btn-leave {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  color: #888;
+  font-size: 0.76rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  margin-left: 2px;
+}
+
+.btn-leave:hover {
+  border-color: rgba(239, 68, 68, 0.25);
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.06);
+}
+
+.btn-leave svg {
+  flex-shrink: 0;
+}
+
 /* === CHAT === */
 
 .chat-screen {
@@ -1349,20 +1375,26 @@ body {
 
 .chat-input input[type="text"] {
   flex: 1;
-  padding: 10px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 10px 16px;
+  border: 1.5px solid rgba(255, 255, 255, 0.06);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.03);
   color: #e0e0e0;
   font-size: 0.93rem;
   outline: none;
   font-family: inherit;
   min-width: 0;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
 }
 
 .chat-input input[type="text"]:focus {
-  border-color: rgba(124, 106, 255, 0.3);
+  border-color: rgba(124, 106, 255, 0.4);
+  background: rgba(124, 106, 255, 0.04);
+  box-shadow: 0 0 0 3px rgba(124, 106, 255, 0.06);
+}
+
+.chat-input input[type="text"]::placeholder {
+  color: #555;
 }
 
 .btn-icon {
@@ -1773,6 +1805,16 @@ body {
     height: 13px;
   }
 
+  .btn-leave {
+    padding: 4px 6px;
+    font-size: 0.63rem;
+  }
+
+  .btn-leave svg {
+    width: 13px;
+    height: 13px;
+  }
+
   .messages {
     padding: 8px 8px;
     gap: 6px;
@@ -1929,6 +1971,16 @@ body {
   }
 
   .btn-rooms svg {
+    width: 11px;
+    height: 11px;
+  }
+
+  .btn-leave {
+    padding: 3px 5px;
+    font-size: 0.58rem;
+  }
+
+  .btn-leave svg {
     width: 11px;
     height: 11px;
   }

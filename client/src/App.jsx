@@ -156,6 +156,21 @@ export default function App() {
     else socket.emit("join", { room: name, username: username.trim() });
   };
 
+  const leaveRoom = () => {
+    socket.disconnect();
+    setJoined(false);
+    setMessages([]);
+    setUsers([]);
+    setRoom("");
+    setInput("");
+    setShowRoomsPage(false);
+    setConnecting(false);
+    setError("");
+    setCopied(false);
+    setAvailableRooms([]);
+    setRoomsLoaded(false);
+  };
+
   const shareLink = () => {
     const base = window.location.origin + window.location.pathname;
     return base + "?room=" + encodeURIComponent(room);
@@ -523,6 +538,10 @@ export default function App() {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
             Salons
           </button>
+          <button className="btn-leave" onClick={leaveRoom} title="Quitter le salon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Quitter
+          </button>
         </div>
       </div>
 
@@ -592,6 +611,7 @@ export default function App() {
         </button>
         <input type="file" ref={fileInputRef} onChange={sendFile} hidden />
         <input
+          type="text"
           placeholder="Écrivez un message..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
