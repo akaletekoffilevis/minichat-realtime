@@ -19,12 +19,11 @@ const STICKERS = [
 const fileIcon = (name) => {
   const ext = name?.split(".").pop()?.toLowerCase();
   if (["jpg", "jpeg", "png", "gif", "webp", "svg", "bmp"].includes(ext)) return "🖼️";
-  if (["mp4", "webm", "mov", "avi", "mkv"].includes(ext)) return "🎬";
-  if (["mp3", "wav", "ogg", "flac"].includes(ext)) return "🎵";
   if (["pdf"].includes(ext)) return "📄";
   if (["doc", "docx"].includes(ext)) return "📝";
   if (["txt"].includes(ext)) return "📃";
   if (["zip", "rar", "7z", "tar", "gz"].includes(ext)) return "🗜️";
+  if (["mp3", "wav", "ogg", "flac"].includes(ext)) return "🎵";
   return "📎";
 };
 
@@ -76,9 +75,7 @@ export default function App() {
     socket.on("connect", () => {
       socket.emit("get-rooms");
     });
-    if (socket.connected) {
-      socket.emit("get-rooms");
-    }
+    socket.connect();
     return () => {
       socket.off("rooms-list");
     };
@@ -161,6 +158,12 @@ export default function App() {
   const sendFile = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    const ext = file.name.split(".").pop()?.toLowerCase();
+    const videos = ["mp4", "webm", "mov", "avi", "mkv", "m4v"];
+    if (videos.includes(ext)) {
+      alert("Les vidéos ne sont pas supportées");
+      return;
+    }
     const maxSize = 10 * 1024 * 1024;
     if (file.size > maxSize) {
       alert("Fichier trop volumineux (max 10 Mo)");
@@ -181,7 +184,6 @@ export default function App() {
       mediaRecorder.current = recorder;
       chunks.current = [];
       setRecording(true);
-
       recorder.ondataavailable = (e) => chunks.current.push(e.data);
       recorder.onstop = () => {
         const blob = new Blob(chunks.current, { type: "audio/webm" });
@@ -218,44 +220,124 @@ export default function App() {
 
   if (!joined) {
     return (
-      <div className="join-screen">
-        <div className="join-card">
-          <div className="join-logo">💬</div>
-          <h1>Mini Chat</h1>
-          <p>Entrez votre pseudo et un salon</p>
-          <input
-            placeholder="Votre pseudo"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && joinRoom()}
-          />
-          <input
-            placeholder="#monsalon (laisser vide = aléatoire)"
-            value={room}
-            onChange={(e) => setRoom(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && joinRoom()}
-          />
-          {error && <div className="join-error">{error}</div>}
-          <button onClick={() => joinRoom()} disabled={connecting || !username.trim()}>
-            {connecting ? "Connexion..." : "Créer / Rejoindre le salon"}
-          </button>
-          {!room.trim() && (
-            <p className="join-hint">
-              Laissez vide pour un salon aléatoire, ou tapez #nom
+      <div className="landing">
+        <nav className="nav">
+          <div className="nav-inner">
+            <div className="nav-brand">
+              <span className="nav-logo">💬</span>
+              <span className="nav-name">Discutons</span>
+            </div>
+            <div className="nav-right">
+              <span className="nav-badge">{availableRooms.reduce((s, r) => s + r.users, 0)} en ligne</span>
+            </div>
+          </div>
+        </nav>
+
+        <section className="hero">
+          <div className="hero-bg" />
+          <div className="hero-content">
+            <h1 className="hero-title">
+              Discutez <span className="gradient-text">instantanément</span>
+            </h1>
+            <p className="hero-sub">
+              Créez ou rejoignez un salon en 5 secondes. Sans inscription, sans email.
             </p>
-          )}
-          {availableRooms.length > 0 && (
-            <div className="room-list">
-              <p className="room-list-title">Salons actifs</p>
+            <button className="hero-cta" onClick={() => document.getElementById("join-form")?.scrollIntoView({ behavior: "smooth" })}>
+              C'est parti →
+            </button>
+          </div>
+        </section>
+
+        <section className="how-it-works">
+          <h2 className="section-title">Comment ça marche</h2>
+          <div className="steps">
+            <div className="step">
+              <div className="step-number">1</div>
+              <h3>Choisissez un pseudo</h3>
+              <p>Un nom unique pour vous identifier dans le salon</p>
+            </div>
+            <div className="step-arrow">→</div>
+            <div className="step">
+              <div className="step-number">2</div>
+              <h3>Créez ou rejoignez un salon</h3>
+              <p>Tapez #nom ou cliquez sur un salon actif</p>
+            </div>
+            <div className="step-arrow">→</div>
+            <div className="step">
+              <div className="step-number">3</div>
+              <h3>Discutez !</h3>
+              <p>Messages, stickers, audios et fichiers en temps réel</p>
+            </div>
+          </div>
+        </section>
+
+        <section className="features">
+          <h2 className="section-title">Tout ce dont vous avez besoin</h2>
+          <div className="feature-grid">
+            <div className="feature-card">
+              <span className="feature-icon">💬</span>
+              <h3>Messages en direct</h3>
+              <p>Texte en temps réel, instantané, sans latence</p>
+            </div>
+            <div className="feature-card">
+              <span className="feature-icon">😊</span>
+              <h3>Stickers & emojis</h3>
+              <p>Exprimez-vous avec notre sélection de stickers</p>
+            </div>
+            <div className="feature-card">
+              <span className="feature-icon">🎤</span>
+              <h3>Messages audio</h3>
+              <p>Enregistrez et envoyez un message vocal</p>
+            </div>
+            <div className="feature-card">
+              <span className="feature-icon">📎</span>
+              <h3>Fichiers & images</h3>
+              <p>Partagez des images, PDFs, documents texte</p>
+            </div>
+          </div>
+        </section>
+
+        {availableRooms.length > 0 && (
+          <section className="rooms-section">
+            <h2 className="section-title">Salons actifs</h2>
+            <div className="rooms-grid">
               {availableRooms.map((r) => (
-                <button key={r.name} className="room-item" onClick={() => joinRoom(r.name)}>
-                  <span className="room-item-name">#{r.name}</span>
-                  <span className="room-item-users">{r.users} en ligne</span>
+                <button key={r.name} className="room-card" onClick={() => { setRoom(r.name); document.getElementById("join-form")?.scrollIntoView({ behavior: "smooth" }); }}>
+                  <span className="room-card-name">#{r.name}</span>
+                  <span className="room-card-users">{r.users} en ligne</span>
                 </button>
               ))}
             </div>
-          )}
-        </div>
+          </section>
+        )}
+
+        <section className="join-section" id="join-form">
+          <div className="join-card-landing">
+            <h2>Rejoindre un salon</h2>
+            <div className="join-fields">
+              <input
+                placeholder="Votre pseudo"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && joinRoom()}
+              />
+              <input
+                placeholder="#salon (ou laissez vide pour un salon aléatoire)"
+                value={room}
+                onChange={(e) => setRoom(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && joinRoom()}
+              />
+              {error && <div className="join-error-landing">{error}</div>}
+              <button className="join-btn" onClick={() => joinRoom()} disabled={connecting || !username.trim()}>
+                {connecting ? "Connexion..." : "Rejoindre le salon"}
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <footer className="footer">
+          <p>Discutons — Chat instantané open source</p>
+        </footer>
       </div>
     );
   }
@@ -264,10 +346,11 @@ export default function App() {
     <div className="chat-screen">
       <div className="chat-header">
         <div>
+          <span className="chat-header-brand">💬 Discutons</span>
           <span className="room-label">Salon</span>
           <strong>#{room}</strong>
           <button className="btn-link-share" onClick={copyLink} title="Copier le lien d'invitation">
-            {copied ? "✅ Lien copié !" : "🔗 Partager"}
+            {copied ? "✅ Copié !" : "🔗 Partager"}
           </button>
         </div>
         <div className="header-right">
@@ -293,24 +376,18 @@ export default function App() {
                 <strong>{msg.username}</strong>
                 <span className="time">{msg.time ? formatTime(msg.time) : ""}</span>
               </div>
-
               {msg.type === "text" && <p className="msg-text">{msg.content}</p>}
-
               {msg.type === "sticker" && <span className="msg-sticker">{msg.content}</span>}
-
               {msg.type === "audio" && <audio controls src={msg.content} className="msg-audio" />}
-
               {msg.type === "file" && (
                 <div className="msg-file">
                   {(() => {
                     const fname = msg.content.name || "";
                     const ext = fname.split(".").pop()?.toLowerCase();
                     const isImage = ["jpg", "jpeg", "png", "gif", "webp", "svg", "bmp"].includes(ext);
-                    const isVideo = ["mp4", "webm", "mov", "avi", "mkv"].includes(ext);
                     return (
                       <>
                         {isImage && <img src={msg.content.data} alt={fname} className="file-preview" />}
-                        {isVideo && <video controls src={msg.content.data} className="file-preview" />}
                         <a href={msg.content.data} download={fname} className="file-link">
                           <span className="file-icon">{fileIcon(fname)}</span>
                           <span className="file-info">
@@ -335,18 +412,15 @@ export default function App() {
           📎
         </button>
         <input type="file" ref={fileInputRef} onChange={sendFile} hidden />
-
         <input
           placeholder="Écrivez un message..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && sendText()}
         />
-
         <button className="btn-icon" onClick={() => setShowStickers(!showStickers)} title="Stickers">
           😊
         </button>
-
         {showStickers && (
           <div className="sticker-picker" ref={stickerRef}>
             {STICKERS.map((s) => (
@@ -356,7 +430,6 @@ export default function App() {
             ))}
           </div>
         )}
-
         {recording ? (
           <button className="btn-recording" onClick={stopRecording}>
             ⏹ Arrêter
@@ -366,7 +439,6 @@ export default function App() {
             🎤
           </button>
         )}
-
         <button className="btn-send" onClick={sendText} disabled={!input.trim()}>
           Envoyer
         </button>
