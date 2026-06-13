@@ -109,5 +109,27 @@ io.on("connection", (socket) => {
   });
 });
 
+const MS_24H = 24 * 60 * 60 * 1000;
+
+const cleanup = () => {
+  const now = Date.now();
+  let totalDeleted = 0;
+  Object.keys(messages).forEach((room) => {
+    const before = messages[room].length;
+    messages[room] = messages[room].filter((m) => now - m.time < MS_24H);
+    const deleted = before - messages[room].length;
+    totalDeleted += deleted;
+    if (messages[room].length === 0) {
+      delete messages[room];
+    }
+  });
+  if (totalDeleted > 0) {
+    console.log(`Nettoyage: ${totalDeleted} message(s) supprimé(s) (plus de 24h)`);
+  }
+};
+
+setInterval(cleanup, MS_24H);
+cleanup();
+
 const PORT = process.env.PORT || 4000;
 httpServer.listen(PORT, () => console.log("Serveur démarré sur le port", PORT));
