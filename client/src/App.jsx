@@ -44,6 +44,8 @@ export default function App() {
   const [copied, setCopied] = useState(false);
   const [showRoomsPage, setShowRoomsPage] = useState(false);
   const [newRoomName, setNewRoomName] = useState("");
+  const [roomsLoaded, setRoomsLoaded] = useState(false);
+  const usernameRef = useRef(null);
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
   const mediaRecorder = useRef(null);
@@ -85,6 +87,7 @@ export default function App() {
   useEffect(() => {
     socket.on("rooms-list", (rooms) => {
       setAvailableRooms(rooms);
+      setRoomsLoaded(true);
     });
     socket.on("connect", () => {
       socket.emit("get-rooms");
@@ -333,22 +336,40 @@ export default function App() {
           </div>
         </section>
 
-        {availableRooms.length > 0 && (
-          <section className="rooms-section">
-            <div className="section-label">En direct</div>
-            <h2 className="section-title">Salons actifs</h2>
-            <p className="rooms-sub">Cliquez sur un salon pour le rejoindre instantanément</p>
+        <section className="rooms-section">
+          <div className="section-label">En direct</div>
+          <h2 className="section-title">Salons disponibles</h2>
+          <p className="rooms-sub">Cliquez sur un salon pour le rejoindre instantanément</p>
+          {!roomsLoaded && availableRooms.length === 0 ? (
+            <div className="rooms-loading">
+              <span className="spinner-sm" />
+              Chargement des salons...
+            </div>
+          ) : availableRooms.length === 0 ? (
+            <div className="rooms-loading">
+              <span className="rooms-empty-icon">📭</span>
+              Aucun salon pour le moment — créez le premier !
+            </div>
+          ) : (
             <div className="rooms-grid">
               {availableRooms.map((r) => (
-                <button key={r.name} className="room-card" onClick={() => { setRoom(r.name); document.getElementById("join-form")?.scrollIntoView({ behavior: "smooth" }); }}>
+                <button key={r.name} className="room-card" onClick={() => {
+                  setRoom(r.name);
+                  if (username.trim()) {
+                    joinRoom(r.name);
+                  } else {
+                    document.getElementById("join-form")?.scrollIntoView({ behavior: "smooth" });
+                    usernameRef.current?.focus();
+                  }
+                }}>
                   <span className="room-card-icon">#</span>
                   <span className="room-card-name">{r.name}</span>
                   <span className="room-card-users">{r.users} en ligne</span>
                 </button>
               ))}
             </div>
-          </section>
-        )}
+          )}
+        </section>
 
         <section className="join-section" id="join-form">
           <div className="join-card-landing">
@@ -357,8 +378,9 @@ export default function App() {
             <p className="join-sub">Entrez votre pseudo et choisissez un salon</p>
             <div className="join-fields">
               <div className="join-input-group">
-                <label className="join-label">Pseudo</label>
+                  <label className="join-label">Pseudo</label>
                 <input
+                  ref={usernameRef}
                   placeholder="Votre pseudo"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
@@ -482,19 +504,23 @@ export default function App() {
   return (
     <div className="chat-screen">
       <div className="chat-header">
-        <div>
-          <span className="chat-header-brand">💬 Discutons</span>
-          <span className="room-label">Salon</span>
-          <strong>#{room}</strong>
+        <div className="header-left">
+          <div className="header-brand-group">
+            <span className="chat-header-brand">💬 Discutons</span>
+            <span className="header-divider" />
+            <span className="room-label">Salon</span>
+            <strong className="room-name">#{room}</strong>
+          </div>
           <button className="btn-link-share" onClick={copyLink} title="Copier le lien d'invitation">
-            {copied ? "✅ Copié !" : "🔗 Partager"}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            {copied ? "Copié" : "Partager"}
           </button>
         </div>
         <div className="header-right">
           <span className="user-name">{username}</span>
-          <span className="users-badge">{users.length} en ligne</span>
+          <span className="users-badge"><span className="users-dot" />{users.length} en ligne</span>
           <button className="btn-rooms" onClick={() => setShowRoomsPage(true)} title="Voir tous les salons">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
             Salons
           </button>
         </div>

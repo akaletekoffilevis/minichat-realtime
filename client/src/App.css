@@ -375,6 +375,33 @@ body {
   margin-top: -36px;
 }
 
+.rooms-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 40px 20px;
+  color: #666;
+  font-size: 0.85rem;
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px dashed rgba(255, 255, 255, 0.04);
+  border-radius: 14px;
+}
+
+.rooms-empty-icon {
+  font-size: 1.3rem;
+}
+
+.spinner-sm {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-top-color: #a78bfa;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  flex-shrink: 0;
+}
+
 .rooms-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -961,13 +988,30 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 20px;
-  background: rgba(10, 10, 22, 0.95);
+  padding: 10px 20px;
+  background: rgba(10, 10, 22, 0.98);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   font-size: 0.9rem;
   flex-shrink: 0;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  z-index: 20;
+  gap: 12px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.header-brand-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
 }
 
 .chat-header-brand {
@@ -975,53 +1019,93 @@ body {
   background: linear-gradient(135deg, #7c6aff 0%, #e040fb 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  margin-right: 16px;
   font-size: 0.88rem;
+  white-space: nowrap;
+}
+
+.header-divider {
+  width: 1px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
 }
 
 .room-label {
-  color: #888;
-  margin-right: 6px;
-  font-size: 0.8rem;
+  color: #666;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.room-name {
+  color: #eee;
+  font-size: 0.92rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .header-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .user-name {
   color: #a78bfa;
   font-weight: 600;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
+  display: none;
+}
+
+@media (min-width: 480px) {
+  .user-name {
+    display: inline;
+  }
 }
 
 .users-badge {
   background: rgba(124, 106, 255, 0.08);
-  padding: 4px 12px;
+  padding: 4px 10px;
   border-radius: 20px;
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   color: #a78bfa;
-  border: 1px solid rgba(124, 106, 255, 0.12);
+  border: 1px solid rgba(124, 106, 255, 0.1);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.users-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #22c55e;
+  flex-shrink: 0;
 }
 
 .btn-link-share {
-  margin-left: 8px;
-  padding: 4px 12px;
-  border: 1px solid rgba(124, 106, 255, 0.15);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 8px;
-  background: rgba(124, 106, 255, 0.06);
-  color: #a78bfa;
+  background: rgba(255, 255, 255, 0.02);
+  color: #999;
   font-size: 0.75rem;
   cursor: pointer;
   transition: all 0.2s ease;
   font-family: inherit;
+  white-space: nowrap;
 }
 
 .btn-link-share:hover {
-  background: rgba(124, 106, 255, 0.14);
-  border-color: rgba(124, 106, 255, 0.25);
+  background: rgba(124, 106, 255, 0.06);
+  border-color: rgba(124, 106, 255, 0.15);
+  color: #a78bfa;
 }
 
 .toast {
@@ -1439,20 +1523,27 @@ body {
   }
 
   .chat-header {
-    padding: 10px 12px;
-    font-size: 0.82rem;
+    padding: 8px 12px;
   }
 
   .chat-header-brand {
-    display: none;
+    font-size: 0.8rem;
   }
 
-  .chat-header strong {
+  .header-divider {
+    height: 14px;
+  }
+
+  .room-label {
+    font-size: 0.7rem;
+  }
+
+  .room-name {
     font-size: 0.82rem;
   }
 
   .header-right {
-    gap: 6px;
+    gap: 5px;
   }
 
   .users-badge {
@@ -1462,8 +1553,7 @@ body {
 
   .btn-link-share {
     font-size: 0.68rem;
-    padding: 3px 8px;
-    margin-left: 4px;
+    padding: 4px 8px;
   }
 
   .messages {
@@ -1634,21 +1724,24 @@ body {
   }
 
   .chat-header {
-    padding: 8px 10px;
-    min-height: 44px;
+    padding: 6px 10px;
   }
 
-  .chat-header strong {
-    max-width: 120px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    display: inline-block;
-    vertical-align: middle;
+  .chat-header-brand {
+    font-size: 0.75rem;
+  }
+
+  .header-divider {
+    height: 12px;
   }
 
   .room-label {
-    font-size: 0.72rem;
+    font-size: 0.65rem;
+  }
+
+  .room-name {
+    font-size: 0.78rem;
+    max-width: 100px;
   }
 
   .user-name {
@@ -1658,6 +1751,26 @@ body {
   .users-badge {
     font-size: 0.62rem;
     padding: 2px 6px;
+  }
+
+  .btn-link-share {
+    font-size: 0.62rem;
+    padding: 3px 6px;
+  }
+
+  .btn-link-share svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .btn-rooms {
+    padding: 4px 6px;
+    font-size: 0.65rem;
+  }
+
+  .btn-rooms svg {
+    width: 13px;
+    height: 13px;
   }
 
   .messages {
@@ -1788,8 +1901,36 @@ body {
     padding: 3px 10px;
   }
 
-  .chat-header strong {
-    max-width: 80px;
+  .room-name {
+    max-width: 70px;
+    font-size: 0.72rem;
+  }
+
+  .chat-header-brand {
+    font-size: 0.7rem;
+  }
+
+  .room-label {
+    font-size: 0.6rem;
+  }
+
+  .btn-link-share {
+    font-size: 0.58rem;
+    padding: 2px 5px;
+  }
+
+  .btn-link-share svg {
+    display: none;
+  }
+
+  .btn-rooms {
+    padding: 3px 5px;
+    font-size: 0.6rem;
+  }
+
+  .btn-rooms svg {
+    width: 11px;
+    height: 11px;
   }
 
   .btn-icon {
